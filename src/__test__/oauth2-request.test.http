@@ -1,0 +1,7 @@
+GET https://127.0.0.1:3000/oauth2/auth?client_id=0-0-0-1&response_type=code&scope=openid%20profile%20email%20test&redirect_uri=https://127.0.0.1:3001/auth/cb
+
+###
+
+GET https://github.com/login?client_id=c8b5328ae8bb90f48da2&return_to=%2Flogin%2Foauth%2Fauthorize%3Fclient_id%3Dc8b5328ae8bb90f48da2%26redirect_uri%3Dhttps%253A%252F%252Fhub.jetbrains.com%252Fapi%252Frest%252Foauth2%252Finteractive%252Flogin%252F370f4391-2edd-4cb5-8db7-6887999a4ceb%252Fland%26scope%3Duser%253Aemail%2Bread%253Aorg%26state%3Dk1KLfcdW
+
+###

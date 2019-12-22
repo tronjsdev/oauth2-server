@@ -1,0 +1,73 @@
+<div class="container">
+
+
+  <div class="d-flex justify-content-center mb-4">
+    <h4 class="font-weight-normal m-auto">Authorize {{client.clientName}}</h4>
+  </div>
+
+  <form autocomplete="off"
+        action="/oauth2/interaction/{{uid}}/confirm"
+        method="post">
+    <div class="card m-auto box-shadow py-4"
+         style="width: 500px">
+      <div class="card-body">
+        <h6 class="card-subtitle font-weight-normal mb-4">
+          <b>{{client.clientName}}</b>
+          wants to access your account
+        </h6>
+
+        <div>
+
+          <ul>
+            {{#if isNewAuth}}
+              <li>this is a new authorization</li>
+            {{/if}}
+
+            {{#if isOldAuth}}
+              <li>the client is asking you to confirm previously given authorization</li>
+            {{/if}}
+
+            {{#if newScopes}}
+              <li>scopes:</li>
+              <ul>
+                {{#each newScopes}}
+                  <li>{{this}}</li>
+                {{/each}}
+              </ul>
+            {{/if}}
+
+            {{#if newClaims}}
+              <li>claims:</li>
+              <ul>
+                {{#each newClaims}}
+                  <li>{{this}}</li>
+                {{/each}}
+              </ul>
+            {{/if}}
+
+
+            {{#if isOffline}}
+              <li>
+                the client is asking to have offline access to this authorization
+                {{#if isOldOffline}}
+                (which you've previously granted)
+                {{/if}}
+              </li>
+            {{/if}}
+
+          </ul>
+        </div>
+        <div class="p-4" style="border-top: 1px solid #ccc; margin: 0 -1.25rem">
+
+          <button autofocus
+                  type="submit"
+                  class="btn btn-success w-100">Continue
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </form>
+</div>

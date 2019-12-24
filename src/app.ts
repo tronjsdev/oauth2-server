@@ -10,12 +10,17 @@ import logger from 'morgan';
 import sassMiddleware from 'node-sass-middleware';
 import hbs from 'hbs';
 
+import './config/dotenv/load-dotenv';
+
 import { oidcRouter, usersRouter, homeRouter, authRouter, privateRouter } from './routes';
-import { sessionConfig } from './config';
+import { sessionConfig} from './config';
 import { getUserSignedIn } from './oauth/oidc-provider.helper';
+import { oidcProvider } from './oauth/oidc-provider';
+
 
 const app = express();
 
+// app.enable('trust proxy');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
@@ -40,7 +45,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(async (req: Request, res, next) => {
   try {
-    const user = await getUserSignedIn(req, res);
+    const user = await getUserSignedIn(req, res, oidcProvider);
     req.isAuthenticated = !!user;
     req.user = user;
     next();
@@ -60,7 +65,7 @@ const ensureLogin = (req, res, next) => {
 app.use('/', homeRouter);
 app.use('/private', ensureLogin, privateRouter);
 app.use('/users', usersRouter);
-app.use('/oauth2', oidcRouter(app));
+app.use('/oauth2', oidcRouter(oidcProvider));
 app.use('/auth', authRouter(app));
 
 // catch 404 and forward to error handler
@@ -68,7 +73,7 @@ app.use((req, res, next) => {
   next(createError(404));
 });
 
-// error handler
+// express error handler
 app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;

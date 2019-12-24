@@ -2,9 +2,12 @@ import Provider from 'oidc-provider';
 
 import { port } from '../config';
 
-import { Account } from './account';
 import { oidcProviderConfig } from './oidc-provider.config';
 
-// oidcProviderConfig.findAccount = Account.findAccount;
+const oidcProvider = new Provider(`http://localhost:${port}`, oidcProviderConfig);
+//TODO: save to backend ??
+new oidcProvider.InitialAccessToken({})
+  .save()
+  .then(token => console.log('Register InitialAccessToken:\n', token));
 
-export const oidcProvider = new Provider(`http://localhost:${port}`, oidcProviderConfig);
+export { oidcProvider };

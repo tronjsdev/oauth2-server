@@ -13,7 +13,7 @@ import debug0 from 'debug';
 
 import app from '../app';
 
-const debug = debug0('ts-express-template:server');
+const debug = debug0('oauth2-server:server');
 
 /**
  * Normalize a port into a number, string, or false.

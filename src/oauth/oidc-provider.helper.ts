@@ -1,15 +1,12 @@
-import { interactionPolicy, ClaimsParameterMember } from 'oidc-provider';
+import { interactionPolicy } from 'oidc-provider';
 
-import { oidcProvider as provider } from './oidc-provider';
-
-const { Check, Prompt, base: policy } = interactionPolicy;
+const { base: policy } = interactionPolicy;
 
 const defaultInteractionPolicy = policy();
 const consent = defaultInteractionPolicy.get('consent');
 // @ts-ignore
 const check = consent.checks.get('scopes_missing');
-check.check = (ctx) => {
-  debugger;
+check.check = ctx => {
   const { oidc } = ctx;
   const promptedScopes = oidc.session.promptedScopesFor(oidc.client.clientId);
 
@@ -30,9 +27,9 @@ check.check = (ctx) => {
   return false;
 };
 
-const getUserSignedIn = async (req, res)=> {
-  const ctx = provider.app.createContext(req, res);
-  const session = await provider.Session.get(ctx);
+const getUserSignedIn = async (req, res, oidcProvider)=> {
+  const ctx = oidcProvider.app.createContext(req, res);
+  const session = await oidcProvider.Session.get(ctx);
   return session.account;
 };
 

@@ -2,21 +2,13 @@
 
 import { strict as assert } from 'assert';
 
-import express, { urlencoded } from 'express'; // eslint-disable-line import/no-unresolved
+import express, { urlencoded, Router } from 'express'; // eslint-disable-line import/no-unresolved
 
-import { oidcProvider as provider } from '../oauth/oidc-provider';
 import { Account } from '../oauth/account';
 
-const router = express.Router();
+const router: Router = express.Router();
 
 const body = urlencoded({ extended: false });
-const {
-  constructor: {
-    // @ts-ignore
-    errors: { SessionNotFound },
-  },
-} = provider;
-
 
 function setNoCache(req, res, next) {
   res.set('Pragma', 'no-cache');
@@ -24,12 +16,18 @@ function setNoCache(req, res, next) {
   next();
 }
 
-const oidcRouter = expressApp => {
+const oidcRouter = oidcProvider => {
+  const {
+    constructor: {
+      // @ts-ignore
+      errors: { SessionNotFound },
+    },
+  } = oidcProvider;
   router.get('/interaction/:uid', setNoCache, async (req, res, next) => {
     try {
-      const { uid, prompt, params, session } = await provider.interactionDetails(req, res);
+      const { uid, prompt, params, session } = await oidcProvider.interactionDetails(req, res);
 
-      const client = await provider.Client.find(params.client_id);
+      const client = await oidcProvider.Client.find(params.client_id);
 
       switch (prompt.name) {
         case 'select_account': {
@@ -124,19 +122,20 @@ const oidcRouter = expressApp => {
     try {
       const {
         prompt: { name },
-      } = await provider.interactionDetails(req, res);
+        params
+      } = await oidcProvider.interactionDetails(req, res);
       assert.equal(name, 'login');
       // @ts-ignore
-      const account = await Account.findByLogin(req.body.email);
+      const accountId = await Account.authenticate(req.body.email, req.body.password);
 
       const result = {
         select_account: {}, // make sure its skipped by the interaction policy since we just logged in
         login: {
-          account: account.accountId,
+          account: accountId,
         },
       };
 
-      await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+      await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
     } catch (err) {
       next(err);
     }
@@ -144,7 +143,7 @@ const oidcRouter = expressApp => {
 
   router.post('/interaction/:uid/continue', setNoCache, body, async (req, res, next) => {
     try {
-      const interaction = await provider.interactionDetails(req, res);
+      const interaction = await oidcProvider.interactionDetails(req, res);
       const {
         prompt: { name, details },
       } = interaction;
@@ -162,7 +161,7 @@ const oidcRouter = expressApp => {
       }
 
       const result = { select_account: {} };
-      await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+      await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
     } catch (err) {
       next(err);
     }
@@ -172,7 +171,7 @@ const oidcRouter = expressApp => {
     try {
       const {
         prompt: { name, details },
-      } = await provider.interactionDetails(req, res);
+      } = await oidcProvider.interactionDetails(req, res);
       assert.equal(name, 'consent');
 
       const consent: any = {};
@@ -191,7 +190,7 @@ const oidcRouter = expressApp => {
       consent.replace = false;
 
       const result = { consent };
-      await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
+      await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
     } catch (err) {
       next(err);
     }
@@ -203,7 +202,7 @@ const oidcRouter = expressApp => {
         error: 'access_denied',
         error_description: 'End-User aborted interaction',
       };
-      await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+      await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
     } catch (err) {
       next(err);
     }
@@ -216,7 +215,7 @@ const oidcRouter = expressApp => {
     next(err);
   });
 
-  router.use(provider.callback);
+  router.use(oidcProvider.callback);
   return router;
 };
 

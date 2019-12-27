@@ -13,7 +13,7 @@ declare namespace NodeJS {
 declare namespace Express{
   interface Request{
     // body?: any;
-    // session?: any;
+    session?: any;
     isAuthenticated?: boolean,
     user?: any,
   }

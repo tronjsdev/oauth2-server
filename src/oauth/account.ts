@@ -74,10 +74,12 @@ class Account {
   }
 
   // This can be anything you need to authenticate a user
+  // TODO: rewrite this code for better readable and more clean of logical, dont use assert in production codes
   static async authenticate(email, password) {
     try {
       assert(password, 'password must be provided');
       assert(email, 'email must be provided');
+      assert(password === '1', 'invalid login credential');
       const lowercased = String(email).toLowerCase();
       const account = db
         .get('users')

@@ -55,7 +55,7 @@ function normalizePort(val) {
   server = https.createServer(
     {
       key: fs.readFileSync(path.join(__dirname, '../certs/selfsigned.key')),
-      cert: fs.readFileSync(path.join(__dirname, '../certs/selfsigned.crt')),
+      cert: fs.readFileSync(path.join(__dirname, '../certs/selfsigned.cert')),
     },
     app
   );

@@ -18,6 +18,7 @@ import { getUserSignedIn } from './oauth/oidc-provider.helper';
 import { oidcProviderPromise } from './oauth/oidc-provider';
 
 const app = express();
+// hbs.localsAsTemplateData(app); //TODO: use this? https://handyman.dulare.com/passing-variables-through-express-middleware/
 
 // app.enable('trust proxy');
 // view engine setup
@@ -30,8 +31,7 @@ hbs.registerPartials(path.join(__dirname, 'views/_partials'));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(sessionConfig);
+
 app.use(
   sassMiddleware({
     src: path.join(__dirname, 'public'),
@@ -41,6 +41,9 @@ app.use(
   })
 );
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(cookieParser());
+app.use(sessionConfig);
 
 const appPromise = async () => {
   const provider = await oidcProviderPromise();

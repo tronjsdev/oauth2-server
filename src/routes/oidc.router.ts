@@ -26,8 +26,23 @@ const oidcRouter = oidcProvider => {
   router.get('/interaction/:uid', setNoCache, async (req, res, next) => {
     try {
       const { uid, prompt, params, session } = await oidcProvider.interactionDetails(req, res);
-
       const client = await oidcProvider.Client.find(params.client_id);
+
+      
+      if (session && client.is_first_party) {
+        const result = {
+          select_account: {}, // make sure its skipped by the interaction policy since we just logged in
+          login: {
+            account: session.accountId,
+          },
+        };
+
+        return await oidcProvider.interactionFinished(req, res, result, {
+          mergeWithLastSubmission: false,
+        });
+      }
+
+      const { error } = req.query;
 
       switch (prompt.name) {
         case 'select_account': {
@@ -63,6 +78,7 @@ const oidcRouter = oidcProvider => {
             params,
             title: 'Sign-in',
             session,
+            error,
             /* dbg: {
               params: debug(params),
               prompt: debug(prompt),
@@ -121,12 +137,17 @@ const oidcRouter = oidcProvider => {
   router.post('/interaction/:uid/login', setNoCache, body, async (req, res, next) => {
     try {
       const {
-        prompt: { name },
-        params
+        prompt: { name, details },
+        params,
+        uid,
+        session,
       } = await oidcProvider.interactionDetails(req, res);
       assert.equal(name, 'login');
       // @ts-ignore
       const accountId = await Account.authenticate(req.body.email, req.body.password);
+      if (!accountId) {
+        return res.redirect(`/oauth2/interaction/${uid}?error=Invalid login credential`);
+      }
 
       const result = {
         select_account: {}, // make sure its skipped by the interaction policy since we just logged in
@@ -135,9 +156,11 @@ const oidcRouter = oidcProvider => {
         },
       };
 
-      await oidcProvider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+      return await oidcProvider.interactionFinished(req, res, result, {
+        mergeWithLastSubmission: false,
+      });
     } catch (err) {
-      next(err);
+      return next(err);
     }
   });
 

@@ -1,5 +1,6 @@
 import express, { Response, Request } from 'express';
 
+import { Account } from '../oauth/account';
 
 const authRouter = provider => {
   // base = /auth
@@ -19,7 +20,8 @@ const authRouter = provider => {
     } else {
       //TODO: implement user authentication here
       const { email, password } = req.body;
-      await provider.setProviderSession(req, res, { account: email });
+      const accountId = await Account.authenticate(email, password);
+      await provider.setProviderSession(req, res, { account: accountId });
       res.redirect('/auth/me');
     }
   });

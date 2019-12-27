@@ -32,7 +32,7 @@ const oidcProviderConfig: Configuration = {
     {
       /* eslint-disable @typescript-eslint/camelcase */
       client_id: '0-0-0-0',
-      client_secret: 'cooool_nodejs',
+      client_secret: 'cf6baa772bba217ff55409f2b4517e13ce817bd2',
       redirect_uris: ['https://127.0.0.1:3000/auth/cb'],
       response_types: ['id_token token'],
       grant_types: ['implicit'],
@@ -42,7 +42,7 @@ const oidcProviderConfig: Configuration = {
     },
     {
       client_id: '0-0-0-1',
-      client_secret: 'cooool_nodejs',
+      client_secret: 'cf6baa772bba217ff55409f2b4517e13ce817bd2',
       redirect_uris: ['https://127.0.0.1:3001/auth/cb'],
       response_types: ['code'],
       grant_types: ['authorization_code'],
@@ -50,14 +50,14 @@ const oidcProviderConfig: Configuration = {
       client_name: '7ONe Inc.',
       logo_uri: 'https://127.0.0.1:3000/images/7ONe-logo.png',
       introspection_endpoint_auth_method: 'client_secret_basic',
-      //is_first_party: true,
+      is_first_party: true,
     },
     {
       // Offline access client (often using in api resource server)
       // The in the authorization request must to append: &prompt=consent (kind of let the user to confirm there is a offline access request)
       // and append &scope=offline_access
       client_id: '0-0-0-2',
-      client_secret: 'cooool_nodejs',
+      client_secret: 'cf6baa772bba217ff55409f2b4517e13ce817bd2',
       redirect_uris: ['https://127.0.0.1:3001/auth/cb'],
       response_types: ['code'],
       grant_types: ['authorization_code', 'refresh_token'],

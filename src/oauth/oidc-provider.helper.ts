@@ -22,6 +22,8 @@ check.check = ctx => {
     oidc.session.ensureClientContainer(oidc.client.clientId);
     oidc.session.promptedScopesFor(oidc.params.client_id, oidc.requestParamScopes);
     oidc.session.promptedClaimsFor(oidc.params.client_id, oidc.requestParamClaims);
+    //oidc.session.rejectedScopesFor(oidc.params.client_id, oidc.requestParamScopes);
+    //oidc.session.rejectedClaimsFor(oidc.params.client_id, oidc.requestParamClaims);
   }
 
   return false;

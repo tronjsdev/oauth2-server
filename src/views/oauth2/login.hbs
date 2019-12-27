@@ -36,6 +36,9 @@
                  name="password"
                  value="1">
         </div>
+        {{# if error }}
+          <div class="alert alert-danger">{{error}}</div>
+        {{/if}}
         <button type="submit"
                 class="btn btn-primary">Login
         </button>

@@ -1,8 +1,7 @@
 import express, { Response, Request } from 'express';
 
-import { oidcProvider as provider } from '../oauth/oidc-provider';
 
-const authRouter = app => {
+const authRouter = provider => {
   // base = /auth
   const router = express.Router();
 

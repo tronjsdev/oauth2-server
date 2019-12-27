@@ -1,13 +1,23 @@
 import Provider from 'oidc-provider';
 
-import { port } from '../config';
-
 import { oidcProviderConfig } from './oidc-provider.config';
+import { MongoAdapter } from './mongodb-adapter';
 
-const oidcProvider = new Provider(`http://localhost:${port}`, oidcProviderConfig);
-//TODO: save to backend ??
-new oidcProvider.InitialAccessToken({})
-  .save()
-  .then(token => console.log('Register InitialAccessToken:\n', token));
+const oidcProviderPromise: () => Promise<Provider> = async () => {
+  let adapter;
+  if (process.env.OIDC_ADAPTER_MONGODB_URI) {
+    adapter = MongoAdapter;
+    await adapter.connect();
+  }
+  const provider: Provider = new Provider(`${process.env.OIDC_ISSUER}`, {
+    adapter,
+    ...oidcProviderConfig,
+  });
 
-export { oidcProvider };
+  new provider.InitialAccessToken({})
+    .save()
+    .then(token => console.log('Register InitialAccessToken:\n', token));
+  return provider;
+};
+
+export { oidcProviderPromise };

@@ -13,10 +13,9 @@ import hbs from 'hbs';
 import './config/dotenv/load-dotenv';
 
 import { oidcRouter, usersRouter, homeRouter, authRouter, privateRouter } from './routes';
-import { sessionConfig} from './config';
+import { sessionConfig } from './config';
 import { getUserSignedIn } from './oauth/oidc-provider.helper';
-import { oidcProvider } from './oauth/oidc-provider';
-
+import { oidcProviderPromise } from './oauth/oidc-provider';
 
 const app = express();
 
@@ -43,45 +42,49 @@ app.use(
 );
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(async (req: Request, res, next) => {
-  try {
-    const user = await getUserSignedIn(req, res, oidcProvider);
-    req.isAuthenticated = !!user;
-    req.user = user;
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
+const appPromise = async () => {
+  const provider = await oidcProviderPromise();
+  app.use(async (req: Request, res, next) => {
+    try {
+      const user = await getUserSignedIn(req, res, provider);
+      req.isAuthenticated = !!user;
+      req.user = user;
+      next();
+    } catch (err) {
+      next(err);
+    }
+  });
 
-// TODO: extract this method to a file
-const ensureLogin = (req, res, next) => {
-  if (!req.isAuthenticated) {
-    return res.redirect('/auth/login');
-  }
-  return next();
+  // TODO: extract this method to a file
+  const ensureLogin = (req, res, next) => {
+    if (!req.isAuthenticated) {
+      return res.redirect('/auth/login');
+    }
+    return next();
+  };
+
+  app.use('/', homeRouter);
+  app.use('/private', ensureLogin, privateRouter);
+  app.use('/users', usersRouter);
+  app.use('/oauth2', oidcRouter(provider));
+  app.use('/auth', authRouter(provider));
+
+  // catch 404 and forward to error handler
+  app.use((req, res, next) => {
+    next(createError(404));
+  });
+
+  // express error handler
+  app.use((err, req, res, next) => {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
+  });
+  return app;
 };
 
-app.use('/', homeRouter);
-app.use('/private', ensureLogin, privateRouter);
-app.use('/users', usersRouter);
-app.use('/oauth2', oidcRouter(oidcProvider));
-app.use('/auth', authRouter(app));
-
-// catch 404 and forward to error handler
-app.use((req, res, next) => {
-  next(createError(404));
-});
-
-// express error handler
-app.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
-
-export default app;
+export default appPromise;

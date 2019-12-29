@@ -2,7 +2,11 @@
 
 import { Configuration } from 'oidc-provider';
 
-import { customInteractionPolicy } from './oidc-provider.helper';
+import {
+  customInteractionPolicy,
+  logoutSource,
+  postLogoutSuccessSource,
+} from './oidc-provider.helper';
 import { Account } from './account';
 
 const oidcProviderConfig: Configuration = {
@@ -86,6 +90,8 @@ const oidcProviderConfig: Configuration = {
     // Adding extra props in the `clients` section above
     properties: ['is_first_party'],
   },
+  logoutSource,
+  postLogoutSuccessSource,
   //routes:{ }
   /*responseTypes: [
     'code',

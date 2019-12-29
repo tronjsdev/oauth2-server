@@ -35,4 +35,67 @@ const getUserSignedIn = async (req, res, oidcProvider) => {
   return session.account || session.isNew;
 };
 
-export { defaultInteractionPolicy as customInteractionPolicy, getUserSignedIn };
+const logoutSource = (ctx, form) => {
+  // @param ctx - koa request context
+  // @param form - form source (id="op.logoutForm") to be embedded in the page and submitted by
+  //   the End-User
+  // Here we dont want to confirm to logout, so we auto submit the form once the page get ready
+  // https://github.com/panva/node-oidc-provider/issues/536
+  ctx.body = `<!DOCTYPE html>
+<head>
+  <title>Logging out...</title>
+  <style>/* css and html classes omitted for brevity, see lib/helpers/defaults.js */</style>
+</head>
+<body>
+<div>
+  <!-- <h1>Do you want to sign-out from ${ctx.host}?</h1> -->
+  ${form}
+  <button autofocus id="btnYes"
+          type="submit"
+          form="op.logoutForm"
+          value="yes"
+          name="logout"
+          style="display: none">Yes, sign me out
+  </button>
+  <button type="submit"
+          form="op.logoutForm"
+          style="display: none">No, stay signed in
+  </button>
+</div>
+<script>
+  document.getElementById('btnYes').click();
+</script>
+</body>
+</html>`;
+};
+
+const postLogoutSuccessSource = ctx => {
+  // @param ctx - koa request context
+  const { clientId, clientName, clientUri, initiateLoginUri, logoUri, policyUri, tosUri } =
+    ctx.oidc.client || {}; // client is defined if the user chose to stay logged in with the OP
+  const display = clientName || clientId;
+  ctx.body = `<!DOCTYPE html>
+    <head>
+      <title>Sign-out Success</title>
+      <style>/* css and html classes omitted for brevity, see lib/helpers/defaults.js */</style>
+    </head>
+    <body>
+    <div>
+      <p>Please wait...</p>
+      <form action="/auth/post-logout" id="form" method="post">
+      
+      </form>
+    </div>
+      <script>
+        document.getElementById('form').submit();
+      </script>
+    </body>
+  </html>`;
+};
+
+export {
+  defaultInteractionPolicy as customInteractionPolicy,
+  getUserSignedIn,
+  logoutSource,
+  postLogoutSuccessSource,
+};

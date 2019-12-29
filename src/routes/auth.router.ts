@@ -42,6 +42,10 @@ const authRouter = provider => {
     })(req, res, next);
   });
 
+  router.post('/post-logout', (req, res) => {
+    res.redirect('/');
+  });
+
   /*router.post(
     '/login3',
     passport.authenticate('local', {

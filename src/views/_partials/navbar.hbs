@@ -30,8 +30,14 @@
                href="/account/profile">Profile</a>
           </li>
           <li class="nav-item active">
-            <a class="nav-link"
-               href="/account/logout">Logout</a>
+            <form action="/account/logout"
+                  method="post">
+              <button class="nav-link btn btn-link"
+                      role="link"
+                      type="submit"
+              >Logout
+              </button>
+            </form>
           </li>
         {{else}}
           <li class="nav-item active">

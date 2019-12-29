@@ -7,9 +7,9 @@ accountRouter.get('/profile', async (req, res) => {
   res.render('account/profile', { user: JSON.stringify(res.locals.user) });
 });
 
-accountRouter.get('/logout', async (req, res) => {
+accountRouter.post('/logout', async (req, res) => {
   req.logout();
-  res.redirect('/');
+  res.redirect('/oauth2/session/end');
 });
 
 export { accountRouter };

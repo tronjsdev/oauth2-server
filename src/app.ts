@@ -4,22 +4,19 @@
 import path from 'path';
 
 import createError from 'http-errors';
-import express, { Request } from 'express';
-import passport from 'passport';
+import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import sassMiddleware from 'node-sass-middleware';
 import hbs from 'hbs';
-import { Strategy as LocalStrategy } from 'passport-local';
 
 import './config/dotenv/load-dotenv';
 
 import { oidcRouter, usersRouter, homeRouter, authRouter, privateRouter } from './routes';
 import { sessionConfig } from './config';
 import { oidcProviderPromise } from './oauth/oidc-provider';
-import { ensureLoggedIn } from './middlewares';
-import { getUserSignedIn } from './oauth/oidc-provider.helper';
-import { Account } from './oauth/account';
+import { ensureLoggedIn, passportMiddleware } from './middlewares';
+import passport from "passport";
 
 const LOGIN_URL = '/auth/login';
 const app = express();
@@ -49,31 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cookieParser());
 app.use(sessionConfig);
-app.use(passport.initialize());
-app.use(passport.session());
-
-passport.use(
-  new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-    try {
-      const accountId = await Account.authenticate(email, password);
-      if (!accountId) {
-        return done(null, false, { message: 'Incorrect credential.' });
-      }
-      return done(null, accountId);
-    } catch (err) {
-      return done(err);
-    }
-  })
-);
-
-passport.serializeUser((userContext, done) => {
-  done(null, userContext);
-});
-
-passport.deserializeUser((obj, done) => {
-  console.log('passport.deserializeUser', obj);
-  done(null, obj);
-});
+app.use(passportMiddleware(app));
 
 const appPromise = async () => {
   const provider = await oidcProviderPromise();

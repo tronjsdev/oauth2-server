@@ -1,5 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference,spaced-comment
 /// <reference path="./@types/global.d.ts" />
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference,spaced-comment
+/// <reference path="./@types/index.d.ts" />
 
 import path from 'path';
 
@@ -12,12 +14,11 @@ import hbs from 'hbs';
 
 import './config/dotenv/load-dotenv';
 
-import { oidcRouter, usersRouter, homeRouter, authRouter, privateRouter } from './routes';
-import { sessionConfig } from './config';
+import { oidcRouter, homeRouter, authRouter, accountRouter } from './routes';
+import { appConfig, sessionConfig } from './config';
 import { oidcProviderPromise } from './oauth/oidc-provider';
 import { ensureLoggedIn, passportMiddleware } from './middlewares';
 
-const LOGIN_URL = '/auth/login';
 const app = express();
 // hbs.localsAsTemplateData(app); //TODO: use this? https://handyman.dulare.com/passing-variables-through-express-middleware/
 
@@ -25,6 +26,7 @@ const app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+app.locals.settings = { ...appConfig, ...app.locals.settings };
 hbs.registerPartials(path.join(__dirname, 'views/_partials'));
 
 // app.use(bodyParser.json()); // for parsing application/json
@@ -51,7 +53,8 @@ app.use((req, res, next) => {
   res.locals.user = req.user || null;
   res.locals.currentPath = req.path;
   res.locals.message = req.session.message;
-  
+  res.locals.isAuthenticated = req.isAuthenticated();
+
   delete req.session.message;
 
   next();
@@ -61,8 +64,7 @@ const appPromise = async () => {
   const provider = await oidcProviderPromise();
 
   app.use('/', homeRouter);
-  app.use('/private', ensureLoggedIn(), privateRouter);
-  app.use('/users', usersRouter);
+  app.use('/account', ensureLoggedIn(), accountRouter);
   app.use('/oauth2', oidcRouter(provider));
   app.use('/auth', authRouter(provider));
 

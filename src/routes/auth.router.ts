@@ -9,7 +9,7 @@ const authRouter = provider => {
 
   router.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
-      return res.redirect('/auth/me'); //TODO: move to const
+      return res.redirect(req.app.locals.settings.DEFAULT_REDIRECT_PATH);
     }
     const { nextUrl } = req.query;
     if (req.session) {
@@ -25,7 +25,7 @@ const authRouter = provider => {
       }
       if (!user) {
         req.session.message = info.message;
-        return res.redirect('/auth/login');
+        return res.redirect(req.app.locals.settings.LOGIN_PATH);
       }
       // Passport exposes a login() function on req (also aliased as logIn()) that can be used to establish a login session.
       // http://www.passportjs.org/docs/login/
@@ -35,7 +35,7 @@ const authRouter = provider => {
           return next(err);
         }
         await provider.setProviderSession(req, res, { account: req.user });
-        const { nextUrl = '/auth/me' } = req.session;
+        const { nextUrl = req.app.locals.settings.DEFAULT_REDIRECT_PATH } = req.session;
         delete req.session.nextUrl;
         return res.redirect(nextUrl);
       });
@@ -55,11 +55,6 @@ const authRouter = provider => {
       res.redirect(nextUrl);
     }
   );*/
-
-  router.get('/me', ensureLoggedIn(), async (req, res) => {
-    //req.user = await getUserSignedIn(req, res, provider);
-    res.render('auth/me', { user: JSON.stringify(res.locals.user) });
-  });
 
   return router;
 };

@@ -20,18 +20,27 @@
       <ul class="navbar-nav ml-auto">
         <li class="nav-item active">
           <a class="nav-link"
-             href="/auth/login">Login</a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link"
              href="https://127.0.0.1:3000/oauth2/auth?client_id=0-0-0-1&response_type=code&scope=openid%20profile%20email%20test&redirect_uri=https://127.0.0.1:3001/auth/cb">
             Demo oauth2 login
           </a>
         </li>
-        <li class="nav-item active">
-          <a class="nav-link"
-             href="/private">Private Page</a>
-        </li>
+        {{#if isAuthenticated}}
+          <li class="nav-item active">
+            <a class="nav-link"
+               href="/account/profile">Profile</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link"
+               href="/account/logout">Logout</a>
+          </li>
+        {{else}}
+          <li class="nav-item active">
+            <a class="nav-link"
+               href="/auth/login">Login</a>
+          </li>
+        {{/if}}
+
+
         <li class="nav-item">
           <a class="nav-link"
              href="/oauth2/.well-known/openid-configuration">.well-known</a>

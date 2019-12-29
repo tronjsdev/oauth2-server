@@ -20,7 +20,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "noImplicitAny": false,
-    "typeRoots": ["node_modules/@types"],
+    "typeRoots": ["node_modules/@types","src/@types"],
     // "types": ["src/@types/global.d.ts"],
     "module": "commonjs",
     "target": "es2017",

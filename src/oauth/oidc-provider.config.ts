@@ -68,7 +68,7 @@ const oidcProviderConfig: Configuration = {
       //is_first_party: true,
     },
   ],
-  
+
   findAccount: Account.findAccount,
   claims: {
     openid: ['sub'],

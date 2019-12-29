@@ -1,5 +1,5 @@
 import passport from 'passport';
-import { Strategy as LocalStrategy } from 'passport-local';
+import { IVerifyOptions, Strategy as LocalStrategy } from 'passport-local';
 
 import { Account } from '../oauth/account';
 
@@ -14,6 +14,7 @@ const passportMiddleware = app => {
     console.log('passport.deserializeUser', obj);
     done(null, obj);
   });
+
   return (req, res, next) => {
     passport.use(
       new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {

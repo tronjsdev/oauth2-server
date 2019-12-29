@@ -28,7 +28,6 @@ const oidcRouter = oidcProvider => {
       const { uid, prompt, params, session } = await oidcProvider.interactionDetails(req, res);
       const client = await oidcProvider.Client.find(params.client_id);
 
-      
       if (session && client.is_first_party) {
         const result = {
           select_account: {}, // make sure its skipped by the interaction policy since we just logged in

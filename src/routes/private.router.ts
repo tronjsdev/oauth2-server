@@ -6,4 +6,4 @@ router.get('/', async (req, res, next) => {
   return res.render('private', {});
 });
 
-export {router as privateRouter}
+export { router as privateRouter };

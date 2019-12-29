@@ -16,7 +16,6 @@ import { oidcRouter, usersRouter, homeRouter, authRouter, privateRouter } from '
 import { sessionConfig } from './config';
 import { oidcProviderPromise } from './oauth/oidc-provider';
 import { ensureLoggedIn, passportMiddleware } from './middlewares';
-import passport from "passport";
 
 const LOGIN_URL = '/auth/login';
 const app = express();
@@ -47,6 +46,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 app.use(sessionConfig);
 app.use(passportMiddleware(app));
+
+app.use((req, res, next) => {
+  res.locals.user = req.user || null;
+  res.locals.currentPath = req.path;
+  res.locals.message = req.session.message;
+  
+  delete req.session.message;
+
+  next();
+});
 
 const appPromise = async () => {
   const provider = await oidcProviderPromise();

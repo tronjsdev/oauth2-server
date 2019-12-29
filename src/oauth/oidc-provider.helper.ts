@@ -29,7 +29,7 @@ check.check = ctx => {
   return false;
 };
 
-const getUserSignedIn = async (req, res, oidcProvider)=> {
+const getUserSignedIn = async (req, res, oidcProvider) => {
   const ctx = oidcProvider.app.createContext(req, res);
   const session = await oidcProvider.Session.get(ctx);
   return session.account || session.isNew;

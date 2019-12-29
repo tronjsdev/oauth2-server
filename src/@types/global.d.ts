@@ -15,5 +15,7 @@ declare namespace Express{
     // body?: any;
     session?: any;
     user?: any,
+    locals?: any,
+    flash: (...props)=>void,
   }
 }

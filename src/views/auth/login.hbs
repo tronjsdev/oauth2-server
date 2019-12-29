@@ -3,14 +3,16 @@
     <h5 class="card-title">Sign In</h5>
     <h6 class="card-subtitle mb-2 text-muted">Local sigin</h6>
     <br>
-    <form action="/auth/login" method="post">
+    <form action="/auth/login"
+          method="post">
       <div class="form-group">
         <label for="exampleInputEmail1">Email address</label>
         <input type="email"
                class="form-control"
                id="exampleInputEmail1"
                aria-describedby="emailHelp"
-               name="email" value="foo@gmail.com">
+               name="email"
+               value="foo@gmail.com">
         <small id="emailHelp"
                class="form-text text-muted">We'll never share your email with anyone else.</small>
       </div>
@@ -19,8 +21,13 @@
         <input type="password"
                class="form-control"
                id="exampleInputPassword1"
-               name="password" value="1">
+               name="password"
+               value="1">
       </div>
+      {{# if message}}
+        <div class="alert alert-danger">{{message}}</div>
+      {{/if}}
+
       <button type="submit"
               class="btn btn-primary">Signin
       </button>

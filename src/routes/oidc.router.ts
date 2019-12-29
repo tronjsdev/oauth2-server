@@ -3,6 +3,7 @@
 import { strict as assert } from 'assert';
 
 import express, { urlencoded, Router } from 'express'; // eslint-disable-line import/no-unresolved
+import passport from 'passport';
 
 import { Account } from '../oauth/account';
 
@@ -142,24 +143,36 @@ const oidcRouter = oidcProvider => {
         session,
       } = await oidcProvider.interactionDetails(req, res);
       assert.equal(name, 'login');
-      // @ts-ignore
-      const accountId = await Account.authenticate(req.body.email, req.body.password);
-      if (!accountId) {
-        return res.redirect(`/oauth2/interaction/${uid}?error=Invalid login credential`);
-      }
+      passport.authenticate('local', (err, user, info) => {
+        if (err) {
+          return next(err);
+        }
+        if (!user) {
+          req.session.loginErrorMsg = info.message;
+          return res.redirect(`/oauth2/interaction/${uid}`);
+        }
+        // Passport exposes a login() function on req (also aliased as logIn()) that can be used to establish a login session.
+        // http://www.passportjs.org/docs/login/
+        // eslint-disable-next-line no-shadow,@typescript-eslint/no-misused-promises
+        return req.logIn(user, async err => {
+          if (err) {
+            return next(err);
+          }
+          const accountId = user;
+          const result = {
+            select_account: {}, // make sure its skipped by the interaction policy since we just logged in
+            login: {
+              account: accountId,
+            },
+          };
 
-      const result = {
-        select_account: {}, // make sure its skipped by the interaction policy since we just logged in
-        login: {
-          account: accountId,
-        },
-      };
-
-      return await oidcProvider.interactionFinished(req, res, result, {
-        mergeWithLastSubmission: false,
-      });
+          return oidcProvider.interactionFinished(req, res, result, {
+            mergeWithLastSubmission: false,
+          });
+        });
+      })(req, res, next);
     } catch (err) {
-      return next(err);
+      next(err);
     }
   });
 

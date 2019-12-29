@@ -11,7 +11,7 @@ const db = low(new Memory());
 db.defaults({
   users: [
     {
-      accountId: '23121d3c-84df-44ac-b458-3d63a9a05497',
+      accountId: '10507',
       email: 'foo@gmail.com',
       email_verified: true,
       address: {

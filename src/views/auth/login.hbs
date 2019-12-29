@@ -24,8 +24,8 @@
                name="password"
                value="1">
       </div>
-      {{# if message}}
-        <div class="alert alert-danger">{{message}}</div>
+      {{# if loginErrorMsg}}
+        <div class="alert alert-danger">{{loginErrorMsg}}</div>
       {{/if}}
 
       <button type="submit"

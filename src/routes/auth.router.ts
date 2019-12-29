@@ -24,7 +24,7 @@ const authRouter = provider => {
         return next(err);
       }
       if (!user) {
-        req.session.message = info.message;
+        req.session.loginErrorMsg = info.message;
         return res.redirect(req.app.locals.settings.LOGIN_PATH);
       }
       // Passport exposes a login() function on req (also aliased as logIn()) that can be used to establish a login session.

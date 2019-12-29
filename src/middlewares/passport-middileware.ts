@@ -21,7 +21,7 @@ const passportMiddleware = app => {
         Account.authenticate(email, password)
           .then(accountId => {
             if (!accountId) {
-              return done(null, false, { message: 'Incorrect credential.' });
+              return done(null, false, { message: 'Incorrect credential' });
             }
             return done(null, accountId);
           })

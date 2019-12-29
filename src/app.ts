@@ -52,7 +52,7 @@ app.use(passportMiddleware(app));
 app.use((req, res, next) => {
   res.locals.user = req.user || null;
   res.locals.currentPath = req.path;
-  res.locals.message = req.session.message;
+  res.locals.loginErrorMsg = req.session.loginErrorMsg;
   res.locals.isAuthenticated = req.isAuthenticated();
 
   delete req.session.message;

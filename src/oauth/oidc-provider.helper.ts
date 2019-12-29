@@ -32,7 +32,7 @@ check.check = ctx => {
 const getUserSignedIn = async (req, res, oidcProvider)=> {
   const ctx = oidcProvider.app.createContext(req, res);
   const session = await oidcProvider.Session.get(ctx);
-  return session.account;
+  return session.account || session.isNew;
 };
 
 export { defaultInteractionPolicy as customInteractionPolicy, getUserSignedIn };

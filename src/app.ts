@@ -5,18 +5,23 @@ import path from 'path';
 
 import createError from 'http-errors';
 import express, { Request } from 'express';
+import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import sassMiddleware from 'node-sass-middleware';
 import hbs from 'hbs';
+import { Strategy as LocalStrategy } from 'passport-local';
 
 import './config/dotenv/load-dotenv';
 
 import { oidcRouter, usersRouter, homeRouter, authRouter, privateRouter } from './routes';
 import { sessionConfig } from './config';
-import { getUserSignedIn } from './oauth/oidc-provider.helper';
 import { oidcProviderPromise } from './oauth/oidc-provider';
+import { ensureLoggedIn } from './middlewares';
+import { getUserSignedIn } from './oauth/oidc-provider.helper';
+import { Account } from './oauth/account';
 
+const LOGIN_URL = '/auth/login';
 const app = express();
 // hbs.localsAsTemplateData(app); //TODO: use this? https://handyman.dulare.com/passing-variables-through-express-middleware/
 
@@ -44,30 +49,37 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cookieParser());
 app.use(sessionConfig);
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(
+  new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
+    try {
+      const accountId = await Account.authenticate(email, password);
+      if (!accountId) {
+        return done(null, false, { message: 'Incorrect credential.' });
+      }
+      return done(null, accountId);
+    } catch (err) {
+      return done(err);
+    }
+  })
+);
+
+passport.serializeUser((userContext, done) => {
+  done(null, userContext);
+});
+
+passport.deserializeUser((obj, done) => {
+  console.log('passport.deserializeUser', obj);
+  done(null, obj);
+});
 
 const appPromise = async () => {
   const provider = await oidcProviderPromise();
-  app.use(async (req: Request, res, next) => {
-    try {
-      const user = await getUserSignedIn(req, res, provider);
-      req.isAuthenticated = !!user;
-      req.user = user;
-      next();
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  // TODO: extract this method to a file
-  const ensureLogin = (req, res, next) => {
-    if (!req.isAuthenticated) {
-      return res.redirect('/auth/login');
-    }
-    return next();
-  };
 
   app.use('/', homeRouter);
-  app.use('/private', ensureLogin, privateRouter);
+  app.use('/private', ensureLoggedIn(), privateRouter);
   app.use('/users', usersRouter);
   app.use('/oauth2', oidcRouter(provider));
   app.use('/auth', authRouter(provider));

@@ -26,7 +26,7 @@ Run production (using `pm2`):
 npm start
 ```
 
-### Todo / Planing
+### Todo / Planning
 - [ ] [Gracefully reloading down your script](https://github.com/remy/nodemon#gracefully-reloading-down-your-script)
 - [ ] Write a front-end to management clients (add client, update, remove, like github for example)
      + Check this out for more info: https://www.oauth.com/oauth2-servers/client-registration/registering-new-application/

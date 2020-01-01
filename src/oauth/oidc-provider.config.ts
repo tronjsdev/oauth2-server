@@ -47,7 +47,7 @@ const oidcProviderConfig: Configuration = {
     {
       client_id: '0-0-0-1',
       client_secret: 'cf6baa772bba217ff55409f2b4517e13ce817bd2',
-      redirect_uris: ['https://127.0.0.1:3001/auth/cb'],
+      redirect_uris: ['https://127.0.0.1:3001/auth/cb', 'https://127.0.0.1:7777/auth/cb'],
       response_types: ['code'],
       grant_types: ['authorization_code'],
       scope: 'openid email profile',

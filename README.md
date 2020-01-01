@@ -4,9 +4,11 @@ This is my personal nodejs oauth2 server project
 
 #### Usage
 
-Development:
+Development, port `3000`:
 ```
 npm run dev
+// To stop all pm2 instance:
+pm2 stop all && pm2 del all
 ```
 \
 Debugging:
@@ -21,7 +23,7 @@ npm run build
 ```
 
 \
-Run production (using `pm2`):
+Run production (using `pm2`) on port `8080`:
 ```
 npm start
 ```

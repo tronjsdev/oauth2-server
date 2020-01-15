@@ -39,7 +39,10 @@ class CollectionSet extends Set {
               ]
             : []),
           {
+            // NOTE: the commented line below is the original code, which the TTL (time to live) feature from mongodb doesn't work
+            // The fix is the next line
             key: { expiresAt: 1 },
+            //expiresAt: 1,
             expireAfterSeconds: 0,
           },
         ])
